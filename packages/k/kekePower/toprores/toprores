@@ -1,0 +1,38 @@
+# Version: 1.0
+toprores() {
+    # Check if ~/.toprores config file exists
+    if [[ ! -f ~/.toprores ]]; then
+        echo "What do you want to name the output directory for your ProRes videos?"
+        read outputDirName
+        echo $outputDirName > ~/.toprores
+    else
+        outputDirName=$(cat ~/.toprores)
+    fi
+
+    # Ensure the output directory exists in the current directory
+    mkdir -p "./$outputDirName"
+
+    # Function to convert a single file
+    convert_file() {
+        local inputFile=$1
+        local outputFile="./$outputDirName/${inputFile%.*}.mov"
+        ffmpeg -i "$inputFile" -c:v prores_ks -profile:v 3 -vendor apl0 -bits_per_mb 8000 -pix_fmt yuv422p10le -c:a pcm_s16le "$outputFile"
+    }
+
+    # If no arguments are provided, convert all video files in the current directory
+    if [[ $# -eq 0 ]]; then
+        for file in *.{mp4,mkv,avi,mov,MP4,MKV,AVI,MOV}; do
+            [[ -f "$file" ]] && convert_file "$file"
+        done
+    elif [[ $# -eq 1 ]]; then
+        # If the argument is a file, convert it
+        if [[ -f $1 ]]; then
+            convert_file "$1"
+        # If the argument is not a file, assume it is an extension and convert all files of that type
+        else
+            for file in *.$1; do
+                [[ -f "$file" ]] && convert_file "$file"
+            done
+        fi
+    fi
+}
