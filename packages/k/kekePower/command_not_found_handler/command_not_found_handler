@@ -1,0 +1,33 @@
+# Version 1.1
+
+function command_not_found_handler() {
+
+    if ! command -v sgpt &> /dev/null; then
+      echo "Please install shell_gpt (sgpt)"
+      echo "For example: 'pip install shell_gpt -U'"
+      echo "or from your distro's repository."
+      exit
+    fi
+
+    # The command that was not found is available as the first argument ($1)
+    local cmd="$1"
+    
+    # Shift the arguments so that we can pass the remaining ones to sgpt
+    shift
+    
+    # Use the remaining arguments as part of the question
+    local args="$*"
+    
+    # Check if there are additional arguments to form a question
+    if [ -n "$args" ]; then
+        # If there are, treat the command and arguments as a question
+        sgpt "$cmd $args"
+    else
+        # If not, just treat the command itself as the question
+        sgpt "$cmd"
+    fi
+    
+    # Return a status to prevent the default 'command not found' message
+    return 127
+
+}

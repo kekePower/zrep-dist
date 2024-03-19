@@ -1,0 +1,186 @@
+# Version: 1.0.4
+# License: GPLv2+
+#
+# This function will, based on the parametere passed to it
+# 1. Check for a new ip address
+# 2. Update the zones defined in ~/.config/zones-to-update
+# 3. List zones in ~/.config/zones-to-update
+# 4. Do all of the above is no parameter is passed
+
+function update-dynamic-ip() {
+
+zmodload zsh/datetime
+setopt extendedglob
+
+autoload -Uz zini
+zini ${HOME}/.zreprc
+
+ZONE_PATH=/etc/named
+ZONE_FILES=($(< ~/.config/zones-to-update))
+IP_NEW=${1}
+DATE=$(strftime "%Y%m%d" $EPOCHSECONDS)
+
+function set_new_ip_domain() {
+# Check if the domain configuration exists
+if [[ -z "${config[user_tohtml_new_ip_domain]}" ]]; then
+  echo "The domain for checking the new IP address is not configured."
+  read "domain?Please enter the domain (e.g., kekepower.noip.me): "
+  # After reading the domain from the user
+  if ! [[ "${domain}" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+    echo "The input does not seem like a valid domain. Exiting..."
+    exit 1
+  fi
+  # Optionally write the provided domain back to the configuration file
+  zini ${HOME}/.zreprc user tohtml_new_ip_domain "${domain}"
+  # Reload configuration to reflect the changes
+  zini ${HOME}/.zreprc
+fi
+}
+
+function validate_ip() {
+  if [[ ${1} =~ ^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$ ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function find_serial() {
+	SERIAL=$(grep serial ${ZONE_PATH}/${1} | awk '{print $1}' | uniq)
+}
+
+function usage() {
+	echo "${ZSH_SCRIPT:t} v1.0.0"
+	echo "\tUsage:"
+	echo "\t${ZSH_SCRIPT:t} check"
+	echo "\t${ZSH_SCRIPT:t} update"
+	echo "\t${ZSH_SCRIPT:t} list"
+	echo "\nWritten by kekePower 2022-2024"
+	return 0
+}
+
+function get_new_ip() {
+    REMOTE_IP=$(host ${config[user_tohtml_new_ip_domain]} | awk '/has address/ {print $4}')
+    if [[ -z ${REMOTE_IP} ]]; then
+        echo "Could not resolve IP address for ${domain_name}. Exiting..."
+        return 1
+    fi
+}
+
+function get_current_ip() {
+	# Get the existing IP from zone files
+	LOCAL_IP=$(grep www ${ZONE_PATH}/* | awk '{print $3}' | uniq)
+}
+
+function backup() {
+    local file_to_backup=$1
+    local date=$(date +%Y%m%d)
+    local backup_dir="${HOME}/backup/named/${DATE}"
+
+    echo "Backing up ${file_to_backup} to ${backup_dir}"
+    mkdir -p ${backup_dir}
+    cp -f ${file_to_backup} ${backup_dir}
+}
+
+function reload_bind() {
+	get_new_ip
+        echo "Reloading named zones"
+        sudo systemctl reload named
+        echo "Remember to update Puck, Raiola and Cloudflare with ${REMOTE_IP}"
+}
+
+function update_serial() {
+	#find_serial ${1}
+	SERIAL=$(grep serial ${ZONE_PATH}/${1} | awk '{print $1}' | uniq)
+	sudo sed -i "s|${SERIAL}|${DATE}01|g" ${ZONE_PATH}/${1}
+}
+
+function update_zones() {
+
+# Compare IPs
+if [[ ${REMOTE_IP} != ${LOCAL_IP} ]]; then
+    read "REPLY?IP address has changed. Current IP: $REMOTE_IP. Update DNS? (y/n): " 
+    if [[ ${REPLY} =~ ^[Yy]$ ]]; then
+	# Update Zone Files (Loop for flexibility)
+	for zone in "${ZONE_FILES[@]}"; do
+		backup "${ZONE_PATH}/${zone}"
+		echo "Updating ${zone}"
+		if ! sudo sed -i "s|${LOCAL_IP}|${REMOTE_IP}|g" ${ZONE_PATH}/${zone}; then
+		echo "Error updating ${zone}. Exiting..."
+		return 1
+		fi
+	update_serial ${zone}
+	done
+	reload_bind
+    else
+	echo "Skipping update. Consider updating manually."
+    fi
+else
+	echo "IP address has not changed. No update needed."
+fi
+
+}
+
+function get_active_zones() {
+  active_zones=()
+
+while read -r line; do
+	echo "DEBUG: Reading a line"
+	if [[ $line =~ ^zone\s+\"(.+)\"\s+IN\s+\\{ ]]; then
+	    zone_name=${match[1]}
+	    echo "DEBUG: zone_name is $zone_name"
+	    echo "DEBUG: Match array: ${match[@]}" # Print the match array
+	fi
+
+    if [[ $line =~ ^zone\s+\"(.+)\"\s+IN\s+\\{ ]] && ! [[ $line =~ ^\s*// ]]; then 
+        zone_name=${match[1]}  
+        echo "DEBUG: zone_name is $zone_name" # Add this line
+
+        if [[ ! $zone_name = (#i)(localhost.localdomain|localhost|*.arpa) ]]; then
+            active_zones+=($zone_name)
+        fi
+    fi
+done < /etc/named.rfc1912.zones  
+
+  echo "get_active_zones: $active_zones"
+}
+
+function main() {
+	set_new_ip_domain
+	case "${1}" in
+		help | -h | --help)
+			usage
+		;;
+		check)
+			get_current_ip
+			get_new_ip
+			if [[ ${LOCAL_IP} == ${REMOTE_IP} ]]; then
+				echo "IP address is the same (${REMOTE_IP})."
+			else
+				echo "New IP address detected: ${REMOTE_IP}"
+				echo "Time to update..."
+			fi
+			return 0
+		;;
+		update)
+                        get_current_ip
+                        get_new_ip
+                        validate_ip ${REMOTE_IP}
+			update_zones
+		;;
+		list)
+			get_active_zones
+			echo "Active zones: ${active_zones[@]}"
+		;;
+		*)
+			get_current_ip
+                        get_new_ip
+                        validate_ip ${REMOTE_IP}
+			update_zones
+		;;
+	esac
+}
+
+main "${@}"
+
+}

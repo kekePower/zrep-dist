@@ -1,0 +1,4 @@
+When this function is loaded you can type in anything on the command line
+and it gets sent to the 'sgpt' command and parsed by ChatGPT.
+
+You will then get the reply directly as well.

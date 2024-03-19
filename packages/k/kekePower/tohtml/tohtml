@@ -1,0 +1,58 @@
+# Version: 1.0
+# Function to convert a file to HTML using Vim or Neovim based on its MIME type
+function tohtml() {
+  # Check if the required number of arguments are passed
+  if [[ ${1} == "" ]]; then
+    echo "Usage:"
+    echo " tohtml infile"
+    echo " zrep kekePower/tohtml help"
+    return 1
+  fi
+
+  local infile="${1}"
+  local editorChoiceFile="$HOME/.tohtml"
+  local editor
+
+  # Check if the editor choice exists
+  if [[ -f "$editorChoiceFile" ]]; then
+    editor=$(<"$editorChoiceFile")
+  else
+    # Ask the user for their editor choice
+    echo "Do you want to use vim or nvim? [vim/nvim]"
+    read editor
+    echo "${editor} added to ${editorChoiceFile}"
+    echo "${editor}" > "${editorChoiceFile}"
+  fi
+
+  # Determine the file's MIME type
+  local mimetype=$(file --mime-type -b "${infile}")
+  local vim_ft=""
+
+  # Mapping from MIME types to Vim filetypes
+  case "${mimetype}" in
+    "text/x-c"|"text/x-csrc") vim_ft="c" ;;
+    "text/x-c++"|"text/x-c++src"|"text/x-c-header") vim_ft="cpp" ;;
+    "text/x-shellscript") vim_ft="sh" ;;
+    "text/x-python") vim_ft="python" ;;
+    "text/html") vim_ft="html" ;;
+    "text/javascript") vim_ft="javascript" ;;
+    "text/css") vim_ft="css" ;;
+    # Add other MIME types and their corresponding Vim filetype here
+    *) vim_ft="" ;;
+  esac
+
+  # Construct the command with the determined Vim filetype
+  local cmd="$editor -E -s -c \"let g:html_no_progress=1\" -c \":let g:html_number_lines=1\" -c \"syntax on\""
+
+  if [[ -n "${vim_ft}" ]]; then
+    cmd+=" -c \"set ft=${vim_ft}\""
+  fi
+
+  cmd+=" -c \"runtime! syntax/2html.vim\" -cwqa \"${infile}\" > /dev/null"
+
+  # Execute the command
+  echo "Command: $cmd"
+  eval $cmd
+
+  echo "HTML file written to ${infile}.html"
+}

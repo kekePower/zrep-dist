@@ -1,0 +1,11 @@
+Usage:
+Add the zini directory to you fpath, either in your script or globally in ~/.zshrc.
+
+In your script, load zini.
+autoload -Uz zini
+
+Then use zini to parse the configuration file
+
+zini /path/to/config/file
+
+See https://github.com/kekePower/zini for more information

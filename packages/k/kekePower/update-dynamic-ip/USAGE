@@ -1,0 +1,8 @@
+USAGE:
+
+update-dynamic-ip check  - This will check if your IP address has changed
+update-dynamic-ip update - This will update your defined zones to the new IP address
+update-dynamic-ip list   - This will list the zones defined in ~/.config/zones-to-update
+
+Running the script with no parameteres will do almost all of the above and update if
+an update is necessary.
