@@ -1,4 +1,4 @@
-# Version: 1.0
+# Version: 1.1
 toprores() {
     # Check if ~/.toprores config file exists
     if [[ ! -f ~/.toprores ]]; then
@@ -19,20 +19,37 @@ toprores() {
         ffmpeg -i "$inputFile" -c:v prores_ks -profile:v 3 -vendor apl0 -bits_per_mb 8000 -pix_fmt yuv422p10le -c:a pcm_s16le "$outputFile"
     }
 
+    # Track if any files are converted
+    local filesConverted=0
+
     # If no arguments are provided, convert all video files in the current directory
     if [[ $# -eq 0 ]]; then
-        for file in *.{mp4,mkv,avi,mov,MP4,MKV,AVI,MOV}; do
-            [[ -f "$file" ]] && convert_file "$file"
+        for file in *.{mp4,mkv,avi,mov,MP4,MKV,AVI,MOV}(N); do
+            if [[ -f "$file" ]]; then
+                convert_file "$file"
+                ((filesConverted++))
+            fi
         done
     elif [[ $# -eq 1 ]]; then
         # If the argument is a file, convert it
         if [[ -f $1 ]]; then
             convert_file "$1"
+            ((filesConverted++))
         # If the argument is not a file, assume it is an extension and convert all files of that type
         else
-            for file in *.$1; do
-                [[ -f "$file" ]] && convert_file "$file"
+            for file in *.$1(N); do
+                if [[ -f "$file" ]]; then
+                    convert_file "$file"
+                    ((filesConverted++))
+                fi
             done
         fi
+    fi
+
+    # Check if any files were converted
+    if [[ $filesConverted -eq 0 ]]; then
+        echo "No video files found for conversion."
+    else
+        echo "$filesConverted file(s) converted successfully."
     fi
 }
