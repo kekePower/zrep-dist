@@ -1,0 +1,35 @@
+USAGE: toprores [OPTION]
+
+Converts video files in the current directory to the ProRes format using ffmpeg.
+If run without options, it converts all video files in the current directory.
+It can also take a specific file name or a file extension as an option.
+
+Options:
+  - If no argument is provided, the function will search for and convert all
+    video files (.mp4, .mkv, .avi, .mov) in the current directory to ProRes
+    format.
+  
+  - If a file name is provided as the first argument (e.g., video.mp4), the
+    function will convert that specific file to ProRes format.
+  
+  - If a file extension is provided as the first argument (e.g., mp4),
+    the function will convert all files with that extension in the current
+    directory to ProRes format.
+
+Notes:
+  - The first time you run the function, it will ask for the name of the
+    output directory where the converted ProRes videos will be stored.
+    This name will be saved in the ~/.toprores config file for future use.
+  
+  - The output directory will be created in the current directory if it
+    doesn't already exist.
+
+Examples:
+  toprores
+    Converts all supported video files in the current directory.
+
+  toprores example.mp4
+    Converts 'example.mp4' to ProRes format.
+
+  toprores mov
+    Converts all .mov files in the current directory to ProRes format.
