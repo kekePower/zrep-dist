@@ -1,4 +1,4 @@
-# Version: 1.1
+# Version: 1.2
 toprores() {
     # Check if ~/.toprores config file exists
     if [[ ! -f ~/.toprores ]]; then

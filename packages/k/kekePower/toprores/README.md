@@ -2,6 +2,12 @@
 
 Convert your video files to the ProRes format effortlessly with the `toprores` Zsh function. Utilizing `ffmpeg`, this function enables the conversion of video files in the current directory to the Apple ProRes format, ensuring high-quality video output suitable for professional editing workflows. `toprores` offers simplicity whether converting a single file, multiple files of a specific extension, or all video files in the directory.
 
+## Why?
+
+I started to edit videos using DaVinci Resolve and it doesn't support the widely used video format `mp4`. After a bit of research, I found that the `prores` video format was the best option for it. I then created a short script for it that has done the job for me for a long time, however, it was now time to expand on this script and make it better.
+
+This new version is a lot better and more flexible than the original and works really great for my personal use.
+
 ## Features
 
 - **Convert Single File**: Specifically convert a given video file to ProRes format.
