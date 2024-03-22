@@ -39,5 +39,3 @@ Upon first run, `toprores` will ask for an output directory name, saved in `~/.t
 ## License
 
 `toprores` is open-source, available for both personal and commercial use.
-
-This format should be more aligned with your request, avoiding the use of the triple backticks for the usage instructions while still clearly communicating how to use the function.
