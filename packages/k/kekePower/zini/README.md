@@ -16,7 +16,7 @@ name = value
 
 ### Usage
 
-Place the file ```zini``` in your ```fpath``` and use Zsh's ```autoload``` to load the function.
+Place the file `zini` in your `fpath` and use Zsh's `autoload` to load the function.
 
 ```
 #!/usr/bin/zsh
@@ -34,4 +34,3 @@ Then you can fetch the values like this
 ${config[section_name]}
 ${config[other_section_name]}
 ```
-
