@@ -1,6 +1,6 @@
 # Description: Script to convert video files using ffmpeg
 # License: MIT
-# Version: 1.2.2
+# Version: 1.2.5
 toprores() {
     # Check if ~/.toprores config file exists
     if [[ ! -f ~/.toprores ]]; then

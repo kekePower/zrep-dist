@@ -1,6 +1,6 @@
 # Description: Routes a command not found to another script, in this case to python-shell_gpt
 # License: MIT
-# Version: 1.1.1
+# Version: 1.1.3
 function command_not_found_handler() {
 
     if ! command -v sgpt &> /dev/null; then
