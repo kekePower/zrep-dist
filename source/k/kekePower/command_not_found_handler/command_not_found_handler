@@ -1,4 +1,4 @@
-# Version 1.1
+# Version: 1.1
 
 function command_not_found_handler() {
 

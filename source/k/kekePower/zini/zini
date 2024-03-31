@@ -1,6 +1,6 @@
-# Version: 1.2
-# Last updated: 2024-03-23
-# License: GPLv3 or later
+# Description: A Zsh INI reader
+# License: GPL-3.0
+# Version: 1.2.3
 #
 # https://github.com/kekePower/zini/
 # 
@@ -24,10 +24,10 @@ zini() {
         line=$(echo ${line} | xargs)  # Trim whitespace
 
         # Skip empty lines and comments
-        [[ -z "${line}" || "${line}" == \;* ]] && continue
+        [[ -z "${line}" || "${line}" == ;* ]] && continue
 
         # Detect section headers
-        if [[ "${line}" == \[*\]* ]]; then
+        if [[ "${line}" == [*]* ]]; then
             current_section="${line:1:-1}"
         else
             # Parse key-value pairs

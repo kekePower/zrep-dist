@@ -5,7 +5,7 @@ I created this Zsh function as part of my [Quick Site Generator 2](https://githu
 
 ### Example INI file
 
-```
+```ini
 ; This is a comment
 [section]
 name = value
@@ -18,7 +18,7 @@ name = value
 
 Place the file `zini` in your `fpath` and use Zsh's `autoload` to load the function.
 
-```
+```shell
 #!/usr/bin/zsh
 
 # You can also add your own paths to fpath
@@ -30,7 +30,7 @@ zini /path/to/your/ini-file
 
 Then you can fetch the values like this
 
-```
+```shell
 ${config[section_name]}
 ${config[other_section_name]}
 ```
