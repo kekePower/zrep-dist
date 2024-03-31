@@ -1,6 +1,6 @@
 # Description: Use Vim or NeoVim to convert any text file to HTML
 # License: GPL-2.0+
-# Version: 1.0.10
+# Version: 1.0.11
 # Function to convert a file to HTML using Vim or Neovim based on its MIME type
 function tohtml() {
   # Check if the required number of arguments are passed

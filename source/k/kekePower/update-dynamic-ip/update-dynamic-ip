@@ -1,5 +1,6 @@
-# Version: 1.0.4
-# License: GPLv2+
+# Description: For DynDNS users who have their own DNS server as well
+# License: GPL-2.0+
+# Version: 1.0.5
 #
 # This function will, based on the parametere passed to it
 # 1. Check for a new ip address
