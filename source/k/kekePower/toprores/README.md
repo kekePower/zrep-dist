@@ -1,4 +1,4 @@
-# Toprores Zsh Function
+# toprores Zsh Function
 
 Convert your video files to the ProRes format effortlessly with the `toprores` Zsh function. Utilizing `ffmpeg`, this function enables the conversion of video files in the current directory to the Apple ProRes format, ensuring high-quality video output suitable for professional editing workflows. `toprores` offers simplicity whether converting a single file, multiple files of a specific extension, or all video files in the directory.
 
