@@ -1,6 +1,6 @@
-# Description: Script to convert video files using ffmpeg
+# Description: Script to convert video files to the ProRes format using ffmpeg
 # License: MIT
-# Version: 1.2.5
+# Version: 1.2.6
 toprores() {
     # Check if ~/.toprores config file exists
     if [[ ! -f ~/.toprores ]]; then

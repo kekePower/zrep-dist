@@ -44,4 +44,4 @@ Upon first run, `toprores` will ask for an output directory name, saved in `~/.t
 
 ## License
 
-`toprores` is open-source, available for both personal and commercial use.
+`toprores` is licensed under MIT.
