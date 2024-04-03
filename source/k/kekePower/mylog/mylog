@@ -1,0 +1,94 @@
+# Description: A small logging script for one line notes
+# License: GPL-2.0+
+# Version: 0.9.0
+function mylog() {
+
+# Load zsh/datetime for date and time operations 
+zmodload zsh/datetime
+
+    # Configuration
+    local MYLOG="${HOME}/.config/mylog/mylog"
+    local COLORS=(ONE "\033[1;32m" TWO "\033[1;33m" W "\033[1;37m" END "\033[0m")
+    local VERSION="0.9.0"
+    local DATE=$(strftime "%Y-%m-%d %H:%M:%S" $EPOCHSECONDS)
+    local ZSHRC="${HOME}/.zshrc"
+
+    # Ensure MYLOG directory exists
+    if [[ ! -f ${MYLOG} ]]; then
+        echo "Do you want to set up MyLog? (Y/n)\c"
+        read setup
+        if [[ -z ${setup} || ${setup:l} == 'y' ]]; then
+            echo "Creating the MyLog dir and file"
+            mkdir -p ${MYLOG:h} && touch ${MYLOG} && chmod 740 ${MYLOG:h}
+            echo "${0:t} v${VERSION} successfully installed"
+            echo "${DATE} * INSTALLED * ${0:t} v${VERSION} successfully installed" > ${MYLOG}
+
+            # Check and append aliases if they don't exist
+            if ! grep -q "alias myview=" "${ZSHRC}"; then
+                echo "alias myview='mylog -v'" >> "${ZSHRC}"
+            fi
+            if ! grep -q "alias mysearch=" "${ZSHRC}"; then
+                echo "alias mysearch='mylog -s'" >> "${ZSHRC}"
+            fi
+
+            echo "myview and mysearch aliases added to ${ZSHRC}"
+        else
+            echo "Aborting the installation of ${0:t} v${VERSION}"
+            return 1
+        fi
+        return
+    fi
+
+    # Helper functions
+    print_usage() {
+        echo "${COLORS[W]}${0:t} v${VERSION} This is a small logging script for one line notes.${COLORS[END]}"
+        echo "Usage: \t${ZSH_SCRIPT:t} <TAG> \"Your log\""
+	echo "   Or: \t${ZSH_SCRIPT:t} <option> [argument]"
+        echo "Options:"
+        echo "  -v (or myview) - View the changelog"
+        echo "  -s (or mysearch) <search_term> - Search, case insensitive"
+        echo "  -tags - This will show a list of tags you've used, sorted alphabetically."
+    }
+
+    view_log() {
+        awk -F'*' '{print "\033[1;37m"$1"-\033[0m""\033[1;32m"$2"-""\033[0m", "\033[1;33m"$3"\033[0m"}' ${MYLOG}
+    }
+
+    search_log() {
+        grep -iw "${1}" ${MYLOG} | awk -F'*' '{print "\033[1;37m"$1"-\033[0m""\033[1;32m"$2"-""\033[0m", "\033[1;33m"$3"\033[0m"}'
+    }
+
+    tags() {
+        awk '{print $4}' ${MYLOG} | sort -u | uniq -u | while read tag; do
+            NUMTAGS=$(grep -wc " ${tag} " ${MYLOG})
+            echo "${tag}\t(${NUMTAGS})"
+        done
+    }
+
+    # Main logic
+    case "${1}" in
+        '-h') print_usage ;;
+        '-v'|'myview') view_log ;;
+        '-s'|'mysearch') search_log "${2}" ;;
+        '-tags') tags ;;
+        '')
+            echo "${COLORS[W]}Your log entry:${COLORS[END]}"
+            read LOG
+            echo "${COLORS[W]}How do you want to tag this entry?${COLORS[END]}"
+            read TAG
+            echo "${DATE} * ${TAG:u} * ${LOG}" >> ${MYLOG}
+            echo "\n${COLORS[ONE]}*Entry added to your changelog ${COLORS[END]}"
+            ;;
+        *)
+            if [[ -n ${1} && -n ${2} ]]; then
+                TAG=${1}
+                LOG=${2}
+                echo "${DATE} * ${TAG:u} * ${LOG}" >> ${MYLOG}
+            else
+                echo "Invalid usage. Please use 'mylog -h' for help."
+                return 1
+            fi
+            ;;
+    esac
+    return 0
+}
