@@ -1,6 +1,6 @@
 # Description: A small logging script for one line notes
 # License: GPL-2.0+
-# Version: 0.9.0
+# Version: 0.9.1
 function mylog() {
 
 # Load zsh/datetime for date and time operations 
@@ -9,7 +9,7 @@ zmodload zsh/datetime
     # Configuration
     local MYLOG="${HOME}/.config/mylog/mylog"
     local COLORS=(ONE "\033[1;32m" TWO "\033[1;33m" W "\033[1;37m" END "\033[0m")
-    local VERSION="0.9.0"
+    local VERSION="0.9.1"
     local DATE=$(strftime "%Y-%m-%d %H:%M:%S" $EPOCHSECONDS)
     local ZSHRC="${HOME}/.zshrc"
 
