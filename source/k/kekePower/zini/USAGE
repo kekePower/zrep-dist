@@ -6,6 +6,7 @@ autoload -Uz zini
 
 Then use zini to parse the configuration file
 
-zini /path/to/config/file
+zini read /path/to/config/file
+zini update /path/to/config/file "section" "key = value"
 
 See https://github.com/kekePower/zini for more information
