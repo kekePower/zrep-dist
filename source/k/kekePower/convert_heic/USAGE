@@ -1,0 +1,16 @@
+USAGE:
+  convert_heic [-d] [-h] [--format=&lt;format&gt;] [format]
+
+OPTIONS:
+  -d                 Delete original HEIC files after conversion
+  -h                 Show this help message
+  --format=&lt;format&gt;  Specify output format (default: png)
+  format             Specify output format without using --format option
+                     Supported formats depends on ImageMagick&#039;s capabilities
+
+EXAMPLES:
+  convert_heic -d --format=png        # Convert to PNG and delete originals
+  convert_heic --format=jpg           # Convert to JPG and keep originals
+  convert_heic gif -d                 # Convert to GIF and delete originals
+  convert_heic -d png                 # Convert to PNG and delete originals
+  convert_heic                        # Convert to PNG and keep originals

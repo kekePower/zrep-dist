@@ -1,0 +1,82 @@
+# Description: Converts HEIC images to any other image format available using ImageMagick
+# License: GPL-2.0+
+# Version: 1.0.0
+function convert_heic() {
+
+  # Function to display usage information
+  function usage() {
+    cat << EOF
+USAGE:
+  ${ZSH_SCRIPT:t} [-d] [-h] [--format=<format>] [format]
+
+OPTIONS:
+  -d                 Delete original HEIC files after conversion
+  -h                 Show this help message
+  --format=<format>  Specify output format (default: png)
+  format             Specify output format without using --format option
+                     Supported formats depends on ImageMagick's capabilities
+
+EXAMPLES:
+  ${ZSH_SCRIPT:t} -d --format=png        # Convert to PNG and delete originals
+  ${ZSH_SCRIPT:t} --format=jpg           # Convert to JPG and keep originals
+  ${ZSH_SCRIPT:t} gif -d                 # Convert to GIF and delete originals
+  ${ZSH_SCRIPT:t} -d png                 # Convert to PNG and delete originals
+  ${ZSH_SCRIPT:t}                        # Convert to PNG and keep originals
+EOF
+  }
+
+  # Default settings
+  local output_format="png"
+  local delete_original=false
+  local proceed_with_conversion=true
+
+  # Parse options
+  for arg in "$@"; do
+    case "$arg" in
+      -d)
+        delete_original=true
+        ;;
+      --format=*)
+        output_format="${arg#*=}"
+        ;;
+      -h)
+        usage
+        return 0
+        ;;
+      -*)
+        echo "Unrecognized option: $arg"
+        usage
+        return 1
+        ;;
+      *)
+        # Assume it's a format if not recognized as an option
+        # Only set if output_format is still default to avoid overriding --format option
+        if [[ $output_format == "png" ]]; then
+          output_format="$arg"
+        fi
+        ;;
+    esac
+  done
+
+  if ! $proceed_with_conversion; then
+    return 0
+  fi
+
+  echo "Converting HEIC images to $output_format..."
+  if $delete_original; then
+    echo "Original files will be deleted."
+  fi
+
+  # Main conversion logic, adjusted for case-insensitive extension match
+  for file in *; do
+    if [[ -f "$file" && "${file##*.}" =~ ^[Hh][Ee][Ii][Cc]$ ]]; then
+      echo "- Converting $file to ${output_format}..."
+      convert "$file" "${file%.*}.$output_format"
+      if $delete_original; then
+        echo "- Deleting original: $file"
+        rm "$file"
+      fi
+    fi
+  done
+
+}
